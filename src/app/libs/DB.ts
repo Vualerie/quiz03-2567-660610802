@@ -2,6 +2,12 @@ import _ from "lodash";
 import { LowSync, MemorySync } from "lowdb";
 import { JSONFileSync } from "lowdb/node";
 
+export interface Database {
+  rooms: Room[];
+  messages: Message[];
+  users : User[];
+}
+
 export interface Room {
   roomId: string;
   roomName: string;
@@ -13,13 +19,17 @@ export interface Message {
   messageText: string;
 }
 
+export interface Payload {
+  role: string;
+}
+
 export interface User {
   username: string;
   password: string;
   role: "ADMIN" | "SUPER_ADMIN";
 }
 
-const originalDB = {
+export const originalDB = {
   rooms: [
     {
       roomId: "okhkUzffzCGMqtfC1uv6x",
