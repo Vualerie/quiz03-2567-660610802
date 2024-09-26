@@ -1,8 +1,7 @@
 import jwt from "jsonwebtoken";
-
 import { DB, readDB, User } from "@lib/DB";
 import { NextRequest, NextResponse } from "next/server";
-import { originalDB } from "@lib/DB";
+import { Database } from "@lib/DB";
 
 export const POST = async (request: NextRequest) => {
   const body = await request.json();
@@ -10,8 +9,8 @@ export const POST = async (request: NextRequest) => {
   readDB();
 
   //you should do the validation here
-  const user = originalDB.users.find(
-    (user) => user.username === username && user.password === password
+  const user = (<Database>DB).users.find(
+    (user: User) => user.username === username && user.password === password
   );
 
   if(!user){
@@ -24,7 +23,10 @@ export const POST = async (request: NextRequest) => {
   );
   }
 
-  const token = "Replace this with token creation";
+  const secret = process.env.JWT_SECRET || "secret.exe";
+
+  const token = jwt.sign({ username, role: user.role }, secret, { expiresIn: '1h' });
+
 
   return NextResponse.json({ ok: true, token });
 };
