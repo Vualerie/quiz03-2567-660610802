@@ -1,9 +1,9 @@
-import { DB, readDB, writeDB } from "@lib/DB";
+import { DB , Database, readDB, writeDB } from "@lib/DB";
 import { checkToken } from "@lib/checkToken";
 import { nanoid } from "nanoid";
 import { NextRequest, NextResponse } from "next/server";
 import { originalDB } from '@lib/DB';
-import { Room ,Payload} from "@lib/DB";
+import { Room } from "@lib/DB";
 
 export const GET = async () => {
   readDB();
@@ -16,8 +16,6 @@ export const GET = async () => {
 
 export const POST = async (request: NextRequest) => {
   const payload = checkToken();
-  const body: { roomName: string} = await request.json();
-  let role: string | null = null;
   if (!payload) {
     return NextResponse.json(
       {
@@ -29,8 +27,10 @@ export const POST = async (request: NextRequest) => {
   }
 
   readDB();
-
-  if (role === "ADMIN" || role === "SUPER_ADMIN") {
+  const body = await request.json();
+  const { roomName } = body;
+  const fRoom = (<Database>DB).rooms.find((room: Room) => room.roomName === roomName);
+  if (fRoom) {
     const foundDupe = originalDB.rooms.find((room: Room) => room.roomName === body.roomName);
     if (foundDupe) {
       return NextResponse.json(
